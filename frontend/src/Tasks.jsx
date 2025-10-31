@@ -3,8 +3,10 @@ import api from "./api/axios"
 
 function Tasks() {
     const [tasks, setTasks] = useState([]);
-    const [newTitle, setNewTitle] = useState([]);
+    const [newTitle, setNewTitle] = useState("");
     const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editTask, setEditTask] = useState({ id: null, title: "", isDone: false});
 
     useEffect(() => {
         loadTasks();
@@ -51,14 +53,36 @@ function Tasks() {
         } catch(error) {
             console.error("error adding task: ", error);
         }
-
     }
+
+    const updateTask = async () => {
+        try {
+            await api.put(`/tasks/${editTask.id}`, {
+                title: editTask.title,
+                isDone: editTask.isDone
+            });
+
+            await loadTasks();
+            setShowEditModal(false);
+        } catch (error) {
+            console.error("error updating task: ", error);
+        }
+    };
+
+    const handleEditChange = (e) => {
+        setEditTask({
+            ...editTask,
+            [e.target.name]: e.target.type === "checkbox"
+                ? e.target.checked
+                : e.target.value
+        });
+    };
 
     return (
         <div className="container mt-4">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>Tasks</h2>
-                <button className="btn btn-primary" onClick = {() => setShowModal(true)}>
+                <button className="btn btn-primary" onClick = {() => setShowModal(true) }>
                     Add Task
                 </button>
             </div>
@@ -77,6 +101,23 @@ function Tasks() {
                             <tr key={task.id}>
                                 <td>{task.title}</td>
                                 <td>{task.isDone ? "✅ Done" : "❌ Not Done"}</td>
+                                <td>
+                                    <div className="btn-group" role = "group">
+                                        <button className="btn btn-sm btn-warning" onClick = {() => {
+                                            setEditTask({
+                                                id: task.id,
+                                                title: task.title,
+                                                isDone: task.isDone
+                                            });
+                                            setShowEditModal(true);
+                                        } }>
+                                            Edit
+                                        </button>
+                                        <button className="btn btn-sm btn-danger ms-2" onClick = {() => deleteTask(task.id)}>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         ))
                         ) : (
@@ -129,6 +170,74 @@ function Tasks() {
                                     onClick={addTasks}
                                 >
                                     Save Task
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showEditModal && (
+                <div
+                    className="modal fade show"
+                    style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+                >
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header bg-success text-white">
+                                <h5 className="modal-title">Edit Task</h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setShowEditModal(false)}
+                                ></button>
+                            </div>
+
+                            <div className="modal-body">
+                                {/* Title Input */}
+                                <div className="mb-3">
+                                    <label className="form-label">Task Title</label>
+                                    <input
+                                        type="text"
+                                        name = "title"
+                                        className="form-control"
+                                        placeholder="Enter task title"
+                                        value={editTask.title}
+                                        onChange = {handleEditChange}
+                                    />
+                                </div>
+
+                                {/* Done Toggle */}
+                                <div className="form-check form-switch">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        name="isDone"
+                                        id="isDoneSwitch"
+                                        checked={editTask.isDone}
+                                        onChange = {handleEditChange}
+                                    />
+                                    <label className="form-check-label" htmlFor="isDoneSwitch">
+                                        {editTask.isDone ? "✅ Marked as Done" : "❌ Not Done"}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowEditModal(false)}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    onClick={updateTask}
+                                >
+                                    Save Changes
                                 </button>
                             </div>
                         </div>
