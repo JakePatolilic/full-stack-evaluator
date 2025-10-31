@@ -22,7 +22,7 @@ export default function Login({ onLoginSuccess }) {
         try {
             const response = await api.post("/users/login", form);
             
-            //temporary store userId in localStorage. Can change later to JWT or any secured method.
+            //TODO temporary store userId in localStorage. Can change later to JWT or any secured method.
             localStorage.setItem("userId", response.data.userId);
 
             setMessage(response.data.message);
