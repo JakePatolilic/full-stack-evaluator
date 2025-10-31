@@ -14,10 +14,32 @@ function App() {
 
     const handleLoginSuccess = () => setIsLoggedIn(true);
 
+    const handleLogout = () => {
+        localStorage.removeItem("userId");
+        setIsLoggedIn(false);
+    }
+
     return (
         <div className="app">
         <h1>📝 React Task Evaluator</h1>
-        {isLoggedIn ? <Tasks /> : <Login onLoginSuccess={handleLoginSuccess} />}
+        {isLoggedIn ? (
+                <>
+                    {/* logout button */}
+                    <div className="text-end mb-3">
+                        <button 
+                            className="btn btn-outline-danger btn-sm" 
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+                    </div>
+
+                    {/* tasks page */}
+                    <Tasks />
+                </>
+            ) : (
+                <Login onLoginSuccess={handleLoginSuccess} />
+            )}
         </div>
     );
 }
