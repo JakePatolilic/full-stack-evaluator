@@ -40,15 +40,40 @@ namespace TaskManager.API
 
                 return Ok(new { message = "User registered successfully.", userId = user.Id });
 
-            } catch(DbUpdateException dbEx)
+            }
+            catch (DbUpdateException dbEx)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred in DB while registering the user.", detail = dbEx.Message });
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred while registering the user.", detail = ex.Message });
             }
         }
 
-        
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] User loginUser)
+        {
+            if (string.IsNullOrWhiteSpace(loginUser.Email) || string.IsNullOrWhiteSpace(loginUser.PasswordHash))
+            {
+                return BadRequest(new { message = "Email and password are required." });
+            }
+
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginUser.Email.ToLower());
+
+                if (user == null || !BCrypt.Net.BCrypt.Verify(loginUser.PasswordHash, user.PasswordHash))
+                {
+                    return Unauthorized(new { message = "Invalid email or password." });
+                }
+
+                return Ok(new { message = "Login successful.", userId = user.Id });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred while logging in.", detail = ex.Message });
+            }
+        }
     }
 }
