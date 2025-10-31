@@ -78,6 +78,25 @@ function Tasks() {
         });
     };
 
+    const deleteTask = async (id) => {
+
+        //TODO can use SweetAlert2 for better UI/UX
+        if(!window.confirm("Are you sure you want to delete this task?"))
+        {
+            return;
+        }
+
+        try {
+            await api.delete(`/tasks/${id}`);
+
+            alert("task deleted successfully!")
+            loadTasks();
+        } catch(error) {
+            console.error("error deleting task: ", error);
+            alert("Failed to delete task");
+        }
+    }
+
     return (
         <div className="container mt-4">
             <div className="d-flex justify-content-between align-items-center mb-3">
