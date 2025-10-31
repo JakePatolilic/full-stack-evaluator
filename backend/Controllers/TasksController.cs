@@ -19,10 +19,17 @@ namespace TaskManager.API
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int userId)
         {
-            
-            var tasks = await _context.Tasks.ToListAsync();
+            if (userId <= 0)
+            {
+                return BadRequest(new { message = "Invalid userId." });
+            }
+
+            var tasks = await _context.Tasks
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+
             return Ok(tasks);
         }
 
