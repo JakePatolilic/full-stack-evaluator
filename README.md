@@ -49,3 +49,8 @@ Treat this like a timed test. Don’t overthink it. Show your best work in that 
 - How to test your changes
 
 Good luck. Build smart. Code loud. 💻🔥
+
+#Notes
+- Only used local storage for remembering logged user, and prevent other users from accessing other tasks.
+- May use other methods like JWT for securing the data and pages.
+- May use SweetAlert2 for warnings, success, and etc.
